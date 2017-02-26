@@ -1,6 +1,7 @@
 import React from 'react';
 import { database } from './../../database/database_init';
 import { Button, ButtonGroup, Glyphicon } from 'react-bootstrap';
+import Spinner from 'react-spinkit';
 
 /**
 ElabRequest - to be displayed on the side
@@ -13,7 +14,6 @@ class ElabRequest extends React.Component {
 
         // Initial state
         this.state = {
-        	id: NAME + num,
             question: 'Please write your question here...',
             answer: '',
             endorsed: false,
@@ -21,16 +21,24 @@ class ElabRequest extends React.Component {
             q_userName: '',
             a_username: '',
             testing: '',
+            question_editing: false,
+            answer_editing: false,
         };
 
+        var that = this;
+        database.ref('elab-request').once('value').then(function(snapshot) {
+            that.requests = snapshot.val();
+        });
+
         // Bind all functions so they can refer to "this" correctly
-        this.handleEdit = this.handleEdit.bind(this);
+        /*this.handleEdit = this.handleEdit.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.updateQuestionFromDB = this.updateQuestionFromDB.bind(this);
+        this.updateQuestionFromDB = this.updateQuestionFromDB.bind(this);*/
+
 
     }
 
-    handleEdit(event) {
+    /*handleEdit(event) {
         this.setState({question: event.target.value});
     }
 
@@ -60,25 +68,52 @@ class ElabRequest extends React.Component {
                 testing: 'fetched question from db: ' + snapshot.val()
             });
         });
-    }
+    }*/
 
     render () {
+        var requests = this.requests;
+
+        var requestsList = function (request) {
+            var question = requests[request].question;
+            var answer = requests[request].answer;
+            return (
+                <div className="request" key={request}>
+                    <div>
+                        
+
+                    </div>
+                </div>
+            )
+        }
+
         return (
-            <div
-                style={{
-                    textAlign: 'center',
-                    margin: '0 auto',
-                    width: '560px',
-                }} >
-                <h2> Elaboration Request</h2>
-                <form onSubmit={this.handleSubmit}>
-	                <label>
-	                Question:<textarea value={this.state.question} onChange={this.handleEdit} />
-	                </label>
-	                <input type="submit" value="Submit" />
-                </form>
-                Grab data from database:
-                <Button style={{margin:'10px'}} bsStyle="success" onClick={this.updateQuestionFromDB}><Glyphicon glyph="save" /> Update</Button>
+            <div className="container">
+
+                <div className="request-title"
+                     style={{
+                         textAlign: 'center',
+                         margin: '0 auto',
+                         width: '560px',
+                     }} >
+
+                    <h1> Lecture_Slide </h1>
+                </div>
+
+                <div className="request-new">
+                    <h2> New Elaboration Request </h2>
+                    <form onSubmit={this.handleSubmit}>
+                        <textarea value={this.state.question} onChange={this.handleEdit}
+                            style={{width: '700px', height: '100px'}}/> <br />
+                        <input type="submit" value="Submit" />
+                    </form>
+                </div>
+
+
+                <div className="request-history">
+                    <ul className="request-list">
+                        {this.requests.map(requestsList)}
+                    </ul>
+                </div>
             </div>
         );
     }
